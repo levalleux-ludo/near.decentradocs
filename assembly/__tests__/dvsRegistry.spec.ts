@@ -1,4 +1,4 @@
-import { docExists, registerDoc, getAuthorizedAccounts, getAuthor, init } from '../main'
+import { docExists, registerDoc, getAuthorizedAccounts, getAuthor, init, getDocumentKey } from '../main'
 import { PersistentVector, context, Context } from 'near-sdk-as'
 
 // import { v4 as uuid } from 'uuid';
@@ -10,6 +10,7 @@ import { PersistentVector, context, Context } from 'near-sdk-as'
 //   authorized: new PersistentVector<string>("authorized_doc1:")
 // };
 const account0 = 'account0';
+const account1 = 'account1';
 const docId1: string = '1111';
 const encryptedKey1: string = 'xxxxx';
 const subscriptionFee1: u64 = 123456;
@@ -43,4 +44,11 @@ describe('Test DVSRegistry contract', () => {
   //   registerDoc(docId1, encryptedKey1, subscriptionFee1, authorized1);
   //   // -> expected to throw 'a document with this id already exists'
   // })
+  it('be able to get encryption key if author', () => {
+    Context.setSigner_account_id(account0);
+    expect(getDocumentKey(docId1)).toBe(encryptedKey1);
+    Context.setSigner_account_id(account1);
+    expect(getDocumentKey(docId1)).toBe('');
+  })
 })
+

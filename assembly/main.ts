@@ -4,6 +4,7 @@ import { PersistentVector, PersistentMap, context, logging, storage } from "near
 
 // --- contract code goes below
 let _initialOwner: string;
+const PUBLIC_KEY = '00000-00000-00000-00000-00000';
 const _authorPerDocId = new PersistentMap<string, string>("authors:");
 // const _authorizedAddressPerDocId = new PersistentMap<string, PersistentVector<string>>("authorizedVector:")
 const _authorizedAddressPerDocId = new PersistentMap<string, Array<string>>("authorizedVector:")
@@ -51,8 +52,28 @@ export function getAuthorizedAccounts(docId: string): Array<string> {
   return result;
 }
 
+export function isAuthorized(docId: string, account: string): bool {
+  const authorized = _authorizedAddressPerDocId.get(docId);
+  if (authorized) {
+    return authorized.includes(account);
+  }
+  return false;
+}
+
 export function getAuthor(docId: string): string | null {
   assert(docExists(docId), "this document has not been registered");
   return _authorPerDocId.get(docId);
+}
+
+export function getDocumentKey(docId: string): string | null {
+if ((context.sender == _authorPerDocId.get(docId)) ||
+    isAuthorized(docId, context.sender) ||
+    (PUBLIC_KEY === _encryptedKeyPerDocId.get(docId)) ) {
+    let key =_encryptedKeyPerDocId.get(docId);
+    if (key != null) {
+      return key;
+    }
+  }
+  return '';
 }
 
