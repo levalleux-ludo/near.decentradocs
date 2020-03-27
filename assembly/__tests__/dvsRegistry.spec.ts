@@ -11,15 +11,21 @@ import { PersistentVector, context, Context } from 'near-sdk-as'
 // };
 const account0 = 'account0';
 const account1 = 'account1';
+const account2 = 'account2';
+const account3 = 'account3';
+const account4 = 'account4';
 const docId1: string = '1111';
 const encryptedKey1: string = 'xxxxx';
 const subscriptionFee1: u64 = 123456;
-// const authorized1 = new PersistentVector<string>("authorized_doc1:");
 const authorized1: string[] = ['toto', 'tata', 'titi'];
 const docId2: string = '2222';
-const encryptedKey2: string = 'xxxxx';
+const encryptedKey2: string = 'yyyyy';
 const subscriptionFee2: u64 = 0;
-const authorized2 = new PersistentVector<string>("authorized_doc2:");
+const authorized2: string[] = [account1, account2];
+const docId3: string = '3333';
+const encryptedKey3: string = 'zzzzzz';
+const subscriptionFee3: u64 = 0;
+const authorized3: string[] = [];
 
 const ERROR_DOC_ALREADY_EXISTS = 'a document with this id already exists';
 
@@ -49,6 +55,21 @@ describe('Test DVSRegistry contract', () => {
     expect(getDocumentKey(docId1)).toBe(encryptedKey1);
     Context.setSigner_account_id(account1);
     expect(getDocumentKey(docId1)).toBe('');
+  })
+  it('be able to get encryption key if authorized', () => {
+    Context.setSigner_account_id(account0);
+    registerDoc(docId2, encryptedKey2, subscriptionFee2, authorized2);
+    expect(docExists(docId2)).toBeTruthy();
+    expect(getDocumentKey(docId2)).toBe(encryptedKey2);
+    Context.setSigner_account_id(account1);
+    expect(getDocumentKey(docId2)).toBe(encryptedKey2);
+    Context.setSigner_account_id(account2);
+    expect(getDocumentKey(docId2)).toBe(encryptedKey2);
+    Context.setSigner_account_id(account3);
+    expect(getDocumentKey(docId2)).toBe('');
+    let authorized = getAuthorizedAccounts(docId2);
+    expect(authorized.length).toBe(authorized2.length);
+    expect(getAuthor(docId2)).toBe(account0);
   })
 })
 
