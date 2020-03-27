@@ -1,40 +1,30 @@
-import { addMessage, getMessages } from '../main'
-import { PostedMessage } from '../model'
+import { docExists, registerDoc, getAuthorizedAccounts } from '../main'
 import { PersistentVector, context } from 'near-sdk-as'
+// import { v4 as uuid } from 'uuid';
 
-const messages = new PersistentVector<PostedMessage>('m')
-const hello: string = 'hello world'
+// const doc1 = {
+//   docId: '11111',
+//   encryptedKey: 'xxxxx',
+//   subscriptionFee: 123456,
+//   authorized: new PersistentVector<string>("authorized_doc1:")
+// };
+const docId1: string = '1111';
+const encryptedKey1: string = 'xxxxx';
+const subscriptionFee1: u64 = 123456;
+// const authorized1 = new PersistentVector<string>("authorized_doc1:");
+const authorized1: string[] = [];
+const docId2: string = '2222';
+const encryptedKey2: string = 'xxxxx';
+const subscriptionFee2: u64 = 0;
+const authorized2 = new PersistentVector<string>("authorized_doc2:");
 
-function createMessage (text: string): PostedMessage {
-  return new PostedMessage(text);
-}
+describe('Test DVSRegistry contract', () => {
+  it('be able to register a protected document', () => {
+    expect(docExists(docId1)).toBe(false);
+    expect(docExists(docId2)).toBe(false);
+    registerDoc(docId1, encryptedKey1, subscriptionFee1, authorized1);
+    // expect(docExists(docId1)).toBe(true);
+    // expect(docExists(docId2)).toBe(false);
 
-const message = createMessage(hello)
-
-describe('messages should be able to', () => {
-  it('add a message', () => {
-    addMessage(hello)
-    expect(messages.length).toBe(1, 'should only contain one message')
-    expect(messages[0]).toStrictEqual(message, 'message should be "hello world"')
-  })
-
-  it('retrive messages', () => {
-    const messages = getMessages()
-    expect(messages.length).toBe(1, 'should be one message')
-    expect(messages).toIncludeEqual(message, 'messages should include:\n' + message.toJSON())
-    log(messages[0])
-  })
-
-  it('only show the last ten messages', () => {
-    const newMessages: PostedMessage[] = []
-    for (let i: i32 = 0; i < 10; i++) {
-      const text = 'message #' + i.toString()
-      newMessages.push(createMessage(text))
-      addMessage(text)
-    }
-    const messages = getMessages()
-    log(messages)
-    expect(messages).toStrictEqual(newMessages, 'should be the last ten mesages')
-    expect(messages).not.toIncludeEqual(message, "shouldn't contain the first element")
   })
 })
