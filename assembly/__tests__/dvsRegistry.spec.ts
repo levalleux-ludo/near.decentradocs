@@ -127,5 +127,35 @@ describe('Test DVSRegistry contract', () => {
     Context.setSigner_account_id(account3);
     expect(getDocumentKey(docId1)).toBe(encryptedKey1);
   })
+  it('be able to mix authorized/denied address to a document if author', () => {
+    Context.setSigner_account_id(account0);
+    setAccess(docId1, [account1, account2, account4], [account3, account4]);
+    let authorized = getAuthorizedAccounts(docId1);
+    expect(authorized.length).toBe(2);
+    expect(authorized.includes(account1)).toBe(true);
+    expect(authorized.includes(account2)).toBe(true);
+    expect(authorized.includes(account3)).toBe(false);
+    expect(authorized.includes(account4)).toBe(false);
+
+    Context.setSigner_account_id(account0);
+    expect(getDocumentKey(docId1)).toBe(encryptedKey1);
+    Context.setSigner_account_id(account1);
+    expect(getDocumentKey(docId1)).toBe(encryptedKey1);
+    Context.setSigner_account_id(account2);
+    expect(getDocumentKey(docId1)).toBe(encryptedKey1);
+    Context.setSigner_account_id(account3);
+    expect(getDocumentKey(docId1)).toBe('');
+    Context.setSigner_account_id(account4);
+    expect(getDocumentKey(docId1)).toBe('');
+
+    Context.setSigner_account_id(account0);
+    setAccess(docId1, [account3, account4], [account1, account2]);
+    authorized = getAuthorizedAccounts(docId1);
+    expect(authorized.length).toBe(2);
+    expect(authorized.includes(account1)).toBe(false);
+    expect(authorized.includes(account2)).toBe(false);
+    expect(authorized.includes(account3)).toBe(true);
+    expect(authorized.includes(account4)).toBe(true);
+  })
 })
 
