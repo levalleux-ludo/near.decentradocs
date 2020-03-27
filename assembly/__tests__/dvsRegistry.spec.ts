@@ -19,7 +19,7 @@ const PUBLIC_KEY = '00000-00000-00000-00000-00000';
 const docId1: string = '1111';
 const encryptedKey1: string = 'xxxxx';
 const subscriptionFee1: u64 = 123456;
-const authorized1: string[] = ['toto', 'tata', 'titi'];
+const authorized1: string[] = [];
 const docId2: string = '2222';
 const encryptedKey2: string = 'yyyyy';
 const subscriptionFee2: u64 = 0;
@@ -110,5 +110,22 @@ describe('Test DVSRegistry contract', () => {
   //   setAccess(docId1, [account2], []);
   //   // -> expected to throw 'only the author of the document can change authorisations'
   // })
+  it('be able to deny address if author', () => {
+    Context.setSigner_account_id(account0);
+    setAccess(docId1, [], [account1, account2]);
+    let authorized = getAuthorizedAccounts(docId1);
+    expect(authorized.length).toBe(1);
+    expect(authorized.includes(account1)).toBe(false);
+    expect(authorized.includes(account2)).toBe(false);
+    expect(authorized.includes(account3)).toBe(true);
+    Context.setSigner_account_id(account0);
+    expect(getDocumentKey(docId1)).toBe(encryptedKey1);
+    Context.setSigner_account_id(account1);
+    expect(getDocumentKey(docId1)).toBe('');
+    Context.setSigner_account_id(account2);
+    expect(getDocumentKey(docId1)).toBe('');
+    Context.setSigner_account_id(account3);
+    expect(getDocumentKey(docId1)).toBe(encryptedKey1);
+  })
 })
 
