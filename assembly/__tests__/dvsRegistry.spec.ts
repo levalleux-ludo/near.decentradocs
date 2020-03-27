@@ -157,5 +157,11 @@ describe('Test DVSRegistry contract', () => {
     expect(authorized.includes(account3)).toBe(true);
     expect(authorized.includes(account4)).toBe(true);
   })
+  // it('not be able to add authorized address if not author', () => {
+  //   Context.setSigner_account_id(account3);
+  //   setAccess(docId1, [], [account2]);
+  //   // -> expected to throw 'only the author of the document can change authorisations'
+  // })
+
 })
 
