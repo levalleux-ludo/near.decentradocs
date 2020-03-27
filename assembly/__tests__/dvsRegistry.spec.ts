@@ -14,6 +14,8 @@ const account1 = 'account1';
 const account2 = 'account2';
 const account3 = 'account3';
 const account4 = 'account4';
+const PUBLIC_KEY = '00000-00000-00000-00000-00000';
+
 const docId1: string = '1111';
 const encryptedKey1: string = 'xxxxx';
 const subscriptionFee1: u64 = 123456;
@@ -23,7 +25,7 @@ const encryptedKey2: string = 'yyyyy';
 const subscriptionFee2: u64 = 0;
 const authorized2: string[] = [account1, account2];
 const docId3: string = '3333';
-const encryptedKey3: string = 'zzzzzz';
+const encryptedKey3: string = PUBLIC_KEY;
 const subscriptionFee3: u64 = 0;
 const authorized3: string[] = [];
 
@@ -70,6 +72,18 @@ describe('Test DVSRegistry contract', () => {
     let authorized = getAuthorizedAccounts(docId2);
     expect(authorized.length).toBe(authorized2.length);
     expect(getAuthor(docId2)).toBe(account0);
+  })
+  it('be able to get encryption key if key is public_key', () => {
+    Context.setSigner_account_id(account0);
+    registerDoc(docId3, encryptedKey3, subscriptionFee3, authorized3);
+    expect(docExists(docId3)).toBeTruthy();
+    expect(getDocumentKey(docId3)).toBe(PUBLIC_KEY);
+    Context.setSigner_account_id(account1);
+    expect(getDocumentKey(docId3)).toBe(PUBLIC_KEY);
+    Context.setSigner_account_id(account2);
+    expect(getDocumentKey(docId3)).toBe(PUBLIC_KEY);
+    Context.setSigner_account_id(account3);
+    expect(getDocumentKey(docId3)).toBe(PUBLIC_KEY);
   })
 })
 
