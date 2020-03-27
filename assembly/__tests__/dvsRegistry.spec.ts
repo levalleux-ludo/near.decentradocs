@@ -1,4 +1,4 @@
-import { docExists, registerDoc, getAuthorizedAccounts, getAuthor, init, getDocumentKey } from '../main'
+import { docExists, registerDoc, getAuthorizedAccounts, getAuthor, init, getDocumentKey, setAccess } from '../main'
 import { PersistentVector, context, Context } from 'near-sdk-as'
 
 // import { v4 as uuid } from 'uuid';
@@ -85,5 +85,25 @@ describe('Test DVSRegistry contract', () => {
     Context.setSigner_account_id(account3);
     expect(getDocumentKey(docId3)).toBe(PUBLIC_KEY);
   })
+  it('be able to add authorized address to a document if author', () => {
+    Context.setSigner_account_id(account0);
+    let authorized = getAuthorizedAccounts(docId1);
+    expect(authorized.includes(account1)).toBe(false);
+    expect(authorized.includes(account3)).toBe(false);
+    setAccess(docId1, [account1, account3], []);
+    authorized = getAuthorizedAccounts(docId1);
+    expect(authorized.length).toBe(authorized1.length + 2);
+    expect(authorized.includes(account1)).toBe(true);
+    expect(authorized.includes(account2)).toBe(false);
+    expect(authorized.includes(account3)).toBe(true);
+    Context.setSigner_account_id(account0);
+    expect(getDocumentKey(docId1)).toBe(encryptedKey1);
+    Context.setSigner_account_id(account1);
+    expect(getDocumentKey(docId1)).toBe(encryptedKey1);
+    Context.setSigner_account_id(account2);
+    expect(getDocumentKey(docId1)).toBe('');
+    Context.setSigner_account_id(account3);
+    expect(getDocumentKey(docId1)).toBe(encryptedKey1);
+})
 })
 

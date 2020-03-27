@@ -77,3 +77,29 @@ if ((context.sender == _authorPerDocId.get(docId)) ||
   return '';
 }
 
+function removeFromArrayIfIncluded<T>(theArray: Array<T>, item: T): void {
+  const index = theArray.indexOf(item);
+  if (index > -1) {
+    theArray.splice(index, 1);
+  }
+}
+
+export function setAccess(docId: string, authorizedAddresses: Array<string> , deniedAddresses: Array<string> ): void {
+  assert(docExists(docId), "this document has not been registered");
+  assert(context.sender == _authorPerDocId.get(docId), "only the author of the document can change authorisations");
+  const authorized = _authorizedAddressPerDocId.get(docId);
+  if (authorized) {
+    for (let i = 0; i < authorizedAddresses.length; i++) {
+      const account: string = authorizedAddresses[i];
+      if (!authorized.includes(account)) {
+        authorized.push(account);
+      }
+    }
+    for (let i = 0; i < deniedAddresses.length; i++) {
+      const account: string = deniedAddresses[i];
+      removeFromArrayIfIncluded(authorized, account);
+    }
+    _authorizedAddressPerDocId.set(docId, authorized);
+  }
+}
+
