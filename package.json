@@ -6,7 +6,7 @@
         "build": "yarn build:contract && yarn build:web",
         "build:contract": "mkdir -p out/ && gulp",
         "build:web": "parcel build src/index.html --public-url ./",
-        "deploy": "yarn build && near deploy && gh-pages -d dist/",
+        "deploy": "yarn build && near deploy",
         "dev": "yarn build:contract && near dev-deploy && nodemon --watch assembly -e ts --exec 'yarn dev:start'",
         "lint": "eslint .",
         "start": "yarn deploy && parcel src/index.html",
@@ -19,6 +19,7 @@
         "@babel/preset-react": "^7.9.4",
         "@typescript-eslint/eslint-plugin": "^2.25.0",
         "@typescript-eslint/parser": "^2.24.0",
+        "as-bignum": "^0.1.5",
         "assemblyscript": "^0.9.4",
         "babel-jest": "^25.1.0",
         "eslint": "^6.8.0",
@@ -39,8 +40,7 @@
         "parcel-bundler": "^1.12.4",
         "react-test-renderer": "^16.13.0",
         "sass": "^1.26.3",
-        "typescript": "^3.8.3",
-        "as-bignum": "^0.1.5"
+        "typescript": "^3.8.3"
     },
     "dependencies": {
         "nearlib": "^0.22.0",
@@ -52,12 +52,16 @@
         "projects": [{
                 "displayName": "User interface tests",
                 "testEnvironment": "jsdom",
-                "testMatch": ["<rootDir>/src/tests/ui/*.js"]
+                "testMatch": [
+                    "<rootDir>/src/tests/ui/*.js"
+                ]
             },
             {
                 "displayName": "Integration tests",
                 "testEnvironment": "near-shell/test_environment",
-                "testMatch": ["<rootDir>/src/tests/integration/*.js"]
+                "testMatch": [
+                    "<rootDir>/src/tests/integration/*.js"
+                ]
             }
         ],
         "testPathIgnorePatterns": [

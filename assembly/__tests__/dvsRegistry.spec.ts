@@ -1,4 +1,4 @@
-import { docExists, registerDoc, getAuthorizedAccounts, getAuthor, init, getDocumentKey, setAccess } from '../main'
+import { docExists, registerDoc, getAuthorizedAccounts, getAuthor, init, getDocumentKey, setAccess, subscribe, dDox_getOwner } from '../main'
 import { PersistentVector, context, Context } from 'near-sdk-as'
 
 // import { v4 as uuid } from 'uuid';
@@ -162,6 +162,17 @@ describe('Test DVSRegistry contract', () => {
   //   setAccess(docId1, [], [account2]);
   //   // -> expected to throw 'only the author of the document can change authorisations'
   // })
-
+  it('be able to subscribe to a free document', () => {
+    // expect(await dVSRegistry.getDocumentKey(doc2.docId, { from: accounts[3] })).to.eq('');
+    // let authorized = await dVSRegistry.getAuthorizedAccounts(doc2.docId);
+    // expect(authorized.includes(accounts[3])).to.be.false;
+    // await dVSRegistry.subscribe(doc2.docId, { from: accounts[3] });
+    // expect(await dVSRegistry.getDocumentKey(doc2.docId, { from: accounts[3] })).to.eq(doc2.encryptedKey);
+    // authorized = await dVSRegistry.getAuthorizedAccounts(doc2.docId);
+    // expect(authorized.includes(accounts[3])).to.be.true;
+  })
+  it('be able to invoke DDOX token contract', () => {
+    // dDox_getOwner();
+  })
 })
 

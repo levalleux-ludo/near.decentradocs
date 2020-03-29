@@ -1,15 +1,19 @@
 // @nearfile
 
-import { PersistentVector, PersistentMap, context, logging, storage } from "near-sdk-as";
+import { PersistentVector, PersistentMap, context, logging, storage, ContractPromise, ContractPromiseResult } from "near-sdk-as";
+import { OnDDoxGetOwnerArgs, GetOwnerArgs , GetOwnerResult, AddItemArgs } from './model';
 
 // --- contract code goes below
 let _initialOwner: string;
 const PUBLIC_KEY = '00000-00000-00000-00000-00000';
+const DDOX_CONTRACT='ddox-token';
 const _authorPerDocId = new PersistentMap<string, string>("authors:");
-// const _authorizedAddressPerDocId = new PersistentMap<string, PersistentVector<string>>("authorizedVector:")
-const _authorizedAddressPerDocId = new PersistentMap<string, Array<string>>("authorizedVector:")
-const _subscriptionFeePerDocId = new PersistentMap<string, u64>("subscriptionFee:")
-const _encryptedKeyPerDocId = new PersistentMap<string, string>("encryptedKey:")
+// const _authorizedAddressPerDocId = new PersistentMap<string, PersistentVector<string>>("authorizedVector:");
+const _authorizedAddressPerDocId = new PersistentMap<string, Array<string>>("authorizedVector:");
+const _subscriptionFeePerDocId = new PersistentMap<string, u64>("subscriptionFee:");
+const _encryptedKeyPerDocId = new PersistentMap<string, string>("encryptedKey:");
+
+let lastResult: string = '';
 
 export function init(initialOwner: string): void {
   logging.log("initialOwner: " + initialOwner);
@@ -65,8 +69,12 @@ export function getAuthor(docId: string): string | null {
   return _authorPerDocId.get(docId);
 }
 
+function isAuthor(docId: string, account: string): bool {
+  return (account == _authorPerDocId.get(docId));
+}
+
 export function getDocumentKey(docId: string): string | null {
-if ((context.sender == _authorPerDocId.get(docId)) ||
+if (isAuthor(docId, context.sender) ||
     isAuthorized(docId, context.sender) ||
     (PUBLIC_KEY == _encryptedKeyPerDocId.get(docId)) ) {
     let key =_encryptedKeyPerDocId.get(docId);
@@ -86,7 +94,7 @@ function removeFromArrayIfIncluded<T>(theArray: Array<T>, item: T): void {
 
 export function setAccess(docId: string, authorizedAddresses: Array<string> , deniedAddresses: Array<string> ): void {
   assert(docExists(docId), "this document has not been registered");
-  assert(context.sender == _authorPerDocId.get(docId), "only the author of the document can change authorisations");
+  assert(isAuthor(docId, context.sender), "only the author of the document can change authorisations");
   const authorized = _authorizedAddressPerDocId.get(docId);
   if (authorized) {
     for (let i = 0; i < authorizedAddresses.length; i++) {
@@ -101,5 +109,51 @@ export function setAccess(docId: string, authorizedAddresses: Array<string> , de
     }
     _authorizedAddressPerDocId.set(docId, authorized);
   }
+}
+
+export function subscribe(docId: string): void {
+  assert(!isAuthor(docId, context.sender), "document author does not need to subscribe");
+  assert(!isAuthorized(docId, context.sender), "account has already subscribed to this document");
+  // assert(context.receivedAmount >= _subscriptionFeePerDocId(docId), 'not enough fee to subscribe to this document');
+  // assert(context.attachedDeposit >= _subscriptionFeePerDocId(docId), 'not enough fee to subscribe to this document');
+  // let author = getAuthor(docId);
+  // let fee = _subscriptionFeePerDocId(docId);
+
+  // const authorized = _authorizedAddressPerDocId.get(docId);
+  // if (authorized) {
+  //   authorized.push(context.sender);
+  // }
+}
+
+export function dDox_getOwner(): void {
+  const get_Owner_args: GetOwnerArgs = {}; // call the contract method with these args
+  const _on_dDox_getOwner_args: OnDDoxGetOwnerArgs = {}; // when the callback is called (back), give him this data
+  // let itemArgs: AddItemArgs = {
+  //        accountId: "alice.near",
+  //        itemId: "Sword +9000",
+  //      };
+  // let promise = ContractPromise.create(
+  //        "metanear",
+  //        "addItem",
+  //        itemArgs.encode(),
+  //        0,
+  //      );
+  ContractPromise.create(DDOX_CONTRACT, 'getOwner', get_Owner_args.encode(), 0);
+  // .then(context.contractName, '_on_dDox_getOwner', _on_dDox_getOwner_args.encode(), 0)
+  // .returnAsResult();
+}
+
+// This function is prefixed with `_`, so other contracts or people can't call it directly.
+export function _on_dDox_getOwner(): void {
+  // Get all results
+//  let results = ContractPromise.getResults();
+//  let getOwnerResult = results[0];
+//  // Verifying the remote contract call succeeded.
+//  if (getOwnerResult.status) {
+//     // Decoding data from the bytes buffer into the local object.
+//     let data: GetOwnerResult = GetOwnerResult.decode(getOwnerResult.buffer);
+//     return data.owner;
+//   }
+  lastResult = 'NOK';
 }
 

@@ -11,3 +11,20 @@ export class PostedMessage {
     this.sender = context.sender;
   }
 }
+
+export class OnDDoxGetOwnerArgs {
+
+}
+
+export class GetOwnerArgs {
+
+}
+
+export class GetOwnerResult {
+  owner: string
+}
+
+export class AddItemArgs {
+  accountId: string;
+  itemId: string;
+};
