@@ -1,4 +1,4 @@
-import { docExists, registerDoc, getAuthorizedAccounts, getAuthor, init, getDocumentKey, setAccess, subscribe, dDox_getOwner } from '../main'
+import { docExists, registerDoc, getAuthorizedAccounts, getAuthor, init, getDocumentKey, setAccess, subscribe, getSubscriptionFee, setSubscriptionFee } from '../main'
 import { PersistentVector, context, Context } from 'near-sdk-as'
 
 // import { v4 as uuid } from 'uuid';
@@ -163,6 +163,14 @@ describe('Test DVSRegistry contract', () => {
   //   // -> expected to throw 'only the author of the document can change authorisations'
   // })
   it('be able to subscribe to a free document', () => {
+    Context.setSigner_account_id(account3);
+    expect(getDocumentKey(docId2)).toBe('');
+    let authorized = getAuthorizedAccounts(docId2);
+    expect(authorized.includes(account3)).toBe(false);
+    subscribe(docId2);
+    expect(getDocumentKey(docId2)).toBe(encryptedKey2);
+    authorized = getAuthorizedAccounts(docId2);
+    expect(authorized.includes(account3)).toBe(true);
     // expect(await dVSRegistry.getDocumentKey(doc2.docId, { from: accounts[3] })).to.eq('');
     // let authorized = await dVSRegistry.getAuthorizedAccounts(doc2.docId);
     // expect(authorized.includes(accounts[3])).to.be.false;
@@ -171,8 +179,46 @@ describe('Test DVSRegistry contract', () => {
     // authorized = await dVSRegistry.getAuthorizedAccounts(doc2.docId);
     // expect(authorized.includes(accounts[3])).to.be.true;
   })
-  it('be able to invoke DDOX token contract', () => {
-    // dDox_getOwner();
+  // it('not be able to subscribe twice to a document', () => {
+  //   let authorized = getAuthorizedAccounts(docId2);
+  //   expect(authorized.includes(account3)).toBe(true);
+  //   Context.setSigner_account_id(account3);
+  //   subscribe(docId2);
+  //   // -> expected to throw 'account has already subscribed to this document'
+  // })
+  // it('not be able to subscribe if already authorized', () => {
+  //   let authorized = getAuthorizedAccounts(docId2);
+  //   expect(authorized.includes(account2)).toBe(true);
+  //   Context.setSigner_account_id(account2);
+  //   subscribe(docId2);
+  //   // -> expected to throw 'account has already subscribed to this document'
+  // })
+  // it('not be able to subscribe if author', () => {
+  //   expect(getAuthor(docId2)).toBe(account0);
+  //   Context.setSigner_account_id(account0);
+  //   subscribe(docId2);
+  //   // -> expected to throw 'document author does not need to subscribe'
+  // })
+  it('be able to consult subscription fee', () => {
+    let fee1 = getSubscriptionFee(docId1);
+    expect(fee1).toBe(subscriptionFee1);
+    let fee2 = getSubscriptionFee(docId2);
+    expect(fee2).toBe(subscriptionFee2);
   })
+  it('be able to change subscription fee if author', () => {
+    let fee1 = getSubscriptionFee(docId1);
+    expect(fee1).toBe(subscriptionFee1);
+    Context.setSigner_account_id(account0);
+    setSubscriptionFee(docId1, 654321);
+    fee1 = getSubscriptionFee(docId1);
+    expect(fee1).toBe(654321);
+  })
+  // it('not be able to change subscription fee if not author', () => {
+  //   let fee1 = getSubscriptionFee(docId1);
+  //   expect(fee1).toBe(654321);
+  //   Context.setSigner_account_id(account1);
+  //   setSubscriptionFee(docId1, 654321);
+  //   //  -> expected to throw 'only the author of the document can change authorisations'
+  // })
 })
 

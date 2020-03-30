@@ -119,10 +119,26 @@ export function subscribe(docId: string): void {
   // let author = getAuthor(docId);
   // let fee = _subscriptionFeePerDocId(docId);
 
-  // const authorized = _authorizedAddressPerDocId.get(docId);
-  // if (authorized) {
-  //   authorized.push(context.sender);
-  // }
+  const authorized = _authorizedAddressPerDocId.get(docId);
+  if (authorized) {
+    authorized.push(context.sender);
+    _authorizedAddressPerDocId.set(docId, authorized);
+  }
+}
+
+export function getSubscriptionFee(docId: string): u64 {
+  assert(docExists(docId), "this document has not been registered");
+  if (!_subscriptionFeePerDocId.contains(docId)) {
+    return 0;
+  }
+  const fee = _subscriptionFeePerDocId.getSome(docId);
+  return fee;
+}
+
+export function setSubscriptionFee(docId: string, subscriptionFee: u64): void {
+  assert(docExists(docId), "this document has not been registered");
+  assert(isAuthor(docId, context.sender), "only the author of the document can change authorisations");
+  _subscriptionFeePerDocId.set(docId, subscriptionFee);
 }
 
 export function dDox_getOwner(): void {
@@ -155,5 +171,9 @@ export function _on_dDox_getOwner(): void {
 //     return data.owner;
 //   }
   lastResult = 'NOK';
+}
+
+export function getGreetings(): string {
+  return "Hello Mister X !";
 }
 
