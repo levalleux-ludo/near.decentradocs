@@ -73,9 +73,9 @@ function isAuthor(docId: string, account: string): bool {
   return (account == _authorPerDocId.get(docId));
 }
 
-export function getDocumentKey(docId: string): string | null {
-if (isAuthor(docId, context.sender) ||
-    isAuthorized(docId, context.sender) ||
+export function getDocumentKey(docId: string, account: string = context.sender): string | null {
+if (isAuthor(docId, account) ||
+    isAuthorized(docId, account) ||
     (PUBLIC_KEY == _encryptedKeyPerDocId.get(docId)) ) {
     let key =_encryptedKeyPerDocId.get(docId);
     if (key != null) {
